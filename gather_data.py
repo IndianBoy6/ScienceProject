@@ -116,11 +116,19 @@ def start_input():
                         finger_pos = [0, pointer, middle, ring, pinky]
                         data_takes.append(finger_pos)
 
-    predicting = bool(sys.argv[1])
+    predicting = (sys.argv[1])
+    if sys.argv[1].lower() != "true" and sys.argv[1].lower() != "false":
+        print("The argument after python gather_data.py must be true or false")
+    
+    predicting = sys.argv == "true"
 
     model = None
-    if predicting:
-        model = keras.models.load_model("model")
+    if predicting == True:
+        try:
+            model = keras.models.load_model("model")
+        except IOError:
+            print("If you have already trained the model, make sure the model folder exists in this directory. Otherwise, ignore this error")
+            pass
 
     data = []
 

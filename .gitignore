@@ -4,4 +4,5 @@ __pycache__
 FORMDAT
 RAWDAT
 model
+model.zip
 data_formatted.json
