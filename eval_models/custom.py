@@ -22,7 +22,7 @@ data_y_test = data_y[sp:]
 
 
 model = KNeighborsClassifier(n_neighbors = 2)
-model.fit(data_x, data_y)
+model.fit(data_x_train, data_y_train)
 
 predicted = model.predict(data_x_test)
 acc = metrics.accuracy_score(data_y_test, predicted)
