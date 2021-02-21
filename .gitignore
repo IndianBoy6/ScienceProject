@@ -1,0 +1,7 @@
+venv
+__pycache__
+
+FORMDAT
+RAWDAT
+model
+data_formatted.json
