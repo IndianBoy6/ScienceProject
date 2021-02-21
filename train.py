@@ -3,12 +3,13 @@ import json
 import random
 import numpy as np
 import pickle as pkl
+import sys
 
 from tensorflow.python.keras.layers.core import Dense
 
 
 data = None
-with open("data.json", "r") as file:
+with open(sys.argv[1] if len(sys.argv) > 1 else "data.json", "r") as file:
     data = json.load(file)
 
 

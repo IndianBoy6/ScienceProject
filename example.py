@@ -1,17 +1,18 @@
-import threading
-import math
-import random
-from matplotlib import pyplot as plt
-from collections import deque
-from threading import Lock, Thread
-import myo
 import json
-import numpy as np
-import warnings
-from operator import add
+import math
 import pickle as pkl
+import random
+import threading
+import warnings
+from collections import deque
+from operator import add
+from threading import Lock, Thread
+
+import myo
+import numpy as np
 import tensorflow.keras as keras
-from your_data import *
+from matplotlib import pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
 
 warnings.filterwarnings("ignore")
 
@@ -54,15 +55,8 @@ class EmgCollector(myo.DeviceListener):
         formatted_data["orientation"] = event.orientation
 
     def on_emg(self, event):
-        global m_max
-        global m_min
 
         with self.lock:
-            for i in event.emg:
-                if i > m_max:
-                    m_max = i
-                elif i < m_min:
-                    m_min = i
             self.emg_data_queue.append((event.timestamp, event.emg))
 
 
@@ -94,7 +88,7 @@ class Plot(object):
             formatted_data["emg_avg"][i] = float(movement)
 
             if len(data) < self.n:
-                # Fill the left side with zeroes.
+               # Fill the left side with zeroes.
                 data = np.concatenate([np.zeros(self.n - len(data)), data])
             g.set_ydata(data)
 
@@ -115,36 +109,38 @@ def n_dist(dims, a, b):
 
 def start_input():
 
-    model = keras.models.load_model("model.2")
+    data_x = []
+    data_y = []
 
-    data = []
+    str_data = [i.replace("\n", "") for i in open("FORMDAT", "r")]
 
-    positions = ["Down", "Bottom Angle", "Mid", "Top Angle", "Up"]
+    for index, line in enumerate(str_data):
+        data_x.append([float(i)  for i in line.strip("][").split(",")])
+        data_y.append(index % 5)
+
+
+    knnmodel = KNeighborsClassifier(n_neighbors = 2)
+    knnmodel.fit(data_x, data_y)
+
+    model = keras.models.load_model("model")
+
+
+
+
 
     while True:
+        _ = input("Press Enter To Evaluate The Current Gesture")
 
         norm_data = []
         for i in list(formatted_data["emg_avg"]):
             norm_data.append((i / 64) - 1)
+        
 
-        # + formatted_data["orientation"]
-        pred = model.predict(np.array([norm_data]))[0]
-
-        gest_one = [0.10663057, 0.55458367, 1.0739942,  0.10519223, 0.40350884]
-        gest_two = [0.09234684, 0.73495364, 1.0668597,  0.12956208, 0.45013475]
+        first_pred = model.predict(np.array([norm_data]))[0]
+        pred = knnmodel.predict(np.array([first_pred]))
 
 
-
-        avg_distances = []
-        for gesture in gestures:
-            avg_distances.append(
-                sum([n_dist(5, pred, i) for i in gesture]) / len(gestures)
-            )
-
-        least = np.argmin(avg_distances)
-
-        _ = input("Press Enter To Evaluate The Current Gesture")
-        print(str(gesture_names[least]))
+        print(pred)
 
         continue
 

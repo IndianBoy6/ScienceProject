@@ -53,15 +53,8 @@ class EmgCollector(myo.DeviceListener):
         formatted_data["orientation"] = event.orientation
 
     def on_emg(self, event):
-        global m_max
-        global m_min
 
         with self.lock:
-            for i in event.emg:
-                if i > m_max:
-                    m_max = i
-                elif i < m_min:
-                    m_min = i
             self.emg_data_queue.append((event.timestamp, event.emg))
 
 
@@ -179,12 +172,9 @@ def start_input():
 
         print("\033[2J")
 
-        with open("dataFINAL.json", "w") as file:
+        with open("data.json", "w") as file:
             json.dump(data, file)
-        """
-		GET TO 5250 TODAY!!!
-
-		"""
+       
 
 
 def main():
