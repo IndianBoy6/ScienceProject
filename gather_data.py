@@ -120,7 +120,7 @@ def start_input():
     if sys.argv[1].lower() != "true" and sys.argv[1].lower() != "false":
         print("The argument after python gather_data.py must be true or false")
     
-    predicting = sys.argv == "true"
+    predicting = sys.argv[1] == "true"
 
     model = None
     if predicting == True:
